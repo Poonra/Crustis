@@ -1,8 +1,13 @@
+mod protocol;
+
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::{Arc, Mutex};
 use std::thread;
+
+//           bound. Gives shared access but NO mutability.
+//   Mutex — one writer at a time. Gives mutability but only one owner.
 
 type Store = Arc<Mutex<HashMap<String, String>>>;
 fn main() {
@@ -12,6 +17,9 @@ fn main() {
     println!("Listening on 127.0.0.1:6379");
 
     loop {
+        // accept() does NOT create a connection — it hands the kernel
+        // already established. It BLOCKS until one is available (the thread
+        // parks in the kernel, burning no CPU).
         match listener.accept() {
             Ok((stream, addr)) => {
                 println!("Accepted a client from {}", addr);
