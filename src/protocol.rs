@@ -71,6 +71,14 @@ pub fn parse(buf: &[u8]) -> Result<Option<(Command, usize)>, String> {
     Ok(Some((args, i)))
 }
 
+pub fn bulk(payload: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(payload.len() + 16);
+    out.extend_from_slice(format!("${}\r\n", payload.len()).as_bytes());
+    out.extend_from_slice(payload);
+    out.extend_from_slice(b"\r\n");
+    out
+}
+
 fn find_crlf(buf: &[u8], from: usize) -> Option<usize> {
     let rest = buf.get(from..)?;
     rest.windows(2)
